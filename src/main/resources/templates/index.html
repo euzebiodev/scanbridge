@@ -43,26 +43,24 @@
             Nenhum documento digitalizado ainda.
         </div>
 
-        <table th:if="${!#lists.isEmpty(documents)}">
-            <thead>
-            <tr>
-                <th>Arquivo</th>
-                <th>Data</th>
-                <th>Tamanho</th>
-                <th>Acoes</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="document : ${documents}">
-                <td th:text="${document.fileName()}"></td>
-                <td th:text="${#temporals.format(document.createdAt(), 'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></td>
-                <td class="actions">
-                    <a th:href="@{/documents/{fileName}/view(fileName=${document.fileName()})}">Visualizar</a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="document-grid" th:if="${!#lists.isEmpty(documents)}">
+            <article class="document-card" th:each="document : ${documents}">
+                <a class="thumbnail-link" th:href="@{/documents/{fileName}/view(fileName=${document.fileName()})}">
+                    <img
+                            loading="lazy"
+                            th:src="@{/documents/{fileName}/content(fileName=${document.fileName()})}"
+                            th:alt="${document.fileName()}">
+                </a>
+                <div class="document-card-body">
+                    <h3 th:text="${document.fileName()}">Documento</h3>
+                    <p th:text="${#temporals.format(document.createdAt(), 'dd/MM/yyyy HH:mm')}">Data</p>
+                    <div class="document-card-footer">
+                        <span th:text="${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></span>
+                        <a th:href="@{/documents/{fileName}/view(fileName=${document.fileName()})}">Visualizar</a>
+                    </div>
+                </div>
+            </article>
+        </div>
     </section>
 </main>
 </body>
