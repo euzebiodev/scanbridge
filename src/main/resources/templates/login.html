@@ -17,7 +17,6 @@
         <p class="alert error" th:if="${param.error}">E-mail ou senha invalidos.</p>
 
         <form class="auth-form" th:action="@{/login}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <label>
                 E-mail
                 <input name="email" type="email" autocomplete="email" required autofocus>

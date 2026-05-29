@@ -19,7 +19,6 @@
             </p>
         </div>
         <form class="export-form" th:action="@{/documents/{fileName}/export(fileName=${document.fileName()})}" method="post">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <input type="hidden" name="x" id="crop-x">
             <input type="hidden" name="y" id="crop-y">
             <input type="hidden" name="width" id="crop-width">
