@@ -1,13 +1,14 @@
 # ScanBridge
 
-ScanBridge e um projeto Spring Boot para disponibilizar, via navegador, o scanner instalado em um servidor de impressao Windows.
+ScanBridge e um projeto Spring Boot para disponibilizar, via navegador, o scanner instalado em um servidor de impressao Windows ou Linux.
 
 ## Como executar
 
 Requisitos no servidor:
 
 - Java 21 instalado.
-- Driver WIA do scanner instalado e funcionando no Windows.
+- Windows: driver WIA do scanner instalado e funcionando.
+- Linux: SANE/`scanimage` instalado e reconhecendo o scanner.
 - A aplicacao precisa rodar no servidor onde o scanner aparece em `Dispositivos e Impressoras`.
 
 Comandos:
@@ -31,6 +32,7 @@ Edite `src/main/resources/application.properties`:
 ```properties
 scanbridge.scanner.output-directory=data/scans
 scanbridge.scanner.script-path=scripts/scan-wia.ps1
+scanbridge.scanner.sane-script-path=scripts/scan-sane.sh
 scanbridge.scanner.device-name=
 scanbridge.scanner.timeout-seconds=120
 ```
@@ -41,6 +43,12 @@ Para listar os scanners WIA reconhecidos pelo servidor:
 
 ```powershell
 .\scripts\list-scanners.ps1
+```
+
+Para listar os scanners SANE em Linux:
+
+```bash
+./scripts/list-scanners.sh
 ```
 
 ## Observacoes importantes

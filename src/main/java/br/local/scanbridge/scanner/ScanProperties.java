@@ -9,6 +9,7 @@ public class ScanProperties {
 
     private Path outputDirectory = Path.of("data", "scans");
     private Path scriptPath = Path.of("scripts", "scan-wia.ps1");
+    private Path saneScriptPath = Path.of("scripts", "scan-sane.sh");
     private String deviceName = "";
     private int dpi = 300;
     private String colorMode = "color";
@@ -28,6 +29,14 @@ public class ScanProperties {
 
     public void setScriptPath(Path scriptPath) {
         this.scriptPath = scriptPath;
+    }
+
+    public Path getSaneScriptPath() {
+        return saneScriptPath;
+    }
+
+    public void setSaneScriptPath(Path saneScriptPath) {
+        this.saneScriptPath = saneScriptPath;
     }
 
     public String getDeviceName() {

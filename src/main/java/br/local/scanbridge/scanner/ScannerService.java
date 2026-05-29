@@ -40,22 +40,9 @@ public class ScannerService {
         String id = UUID.randomUUID().toString();
         String fileName = "scan-" + FILE_STAMP.format(Instant.now()) + "-" + id.substring(0, 8) + ".jpg";
         Path target = properties.getOutputDirectory().resolve(fileName).toAbsolutePath().normalize();
-        Path script = properties.getScriptPath().toAbsolutePath().normalize();
-
-        ProcessBuilder builder = new ProcessBuilder(
-                "powershell.exe",
-                "-NoProfile",
-                "-ExecutionPolicy", "Bypass",
-                "-File", script.toString(),
-                "-OutputPath", target.toString(),
-                "-Dpi", String.valueOf(request.getDpi()),
-                "-ColorMode", request.getColorMode()
-        );
-
-        if (StringUtils.hasText(properties.getDeviceName())) {
-            builder.command().add("-DeviceName");
-            builder.command().add(properties.getDeviceName());
-        }
+        ProcessBuilder builder = isWindows()
+                ? windowsScanProcess(target, request)
+                : linuxScanProcess(target, request);
 
         builder.redirectErrorStream(true);
         Process process = builder.start();
@@ -103,6 +90,48 @@ public class ScannerService {
 
     public Duration timeout() {
         return Duration.ofSeconds(properties.getTimeoutSeconds());
+    }
+
+    private ProcessBuilder windowsScanProcess(Path target, ScanRequest request) {
+        Path script = properties.getScriptPath().toAbsolutePath().normalize();
+        ProcessBuilder builder = new ProcessBuilder(
+                "powershell.exe",
+                "-NoProfile",
+                "-ExecutionPolicy", "Bypass",
+                "-File", script.toString(),
+                "-OutputPath", target.toString(),
+                "-Dpi", String.valueOf(request.getDpi()),
+                "-ColorMode", request.getColorMode()
+        );
+
+        if (StringUtils.hasText(properties.getDeviceName())) {
+            builder.command().add("-DeviceName");
+            builder.command().add(properties.getDeviceName());
+        }
+
+        return builder;
+    }
+
+    private ProcessBuilder linuxScanProcess(Path target, ScanRequest request) {
+        Path script = properties.getSaneScriptPath().toAbsolutePath().normalize();
+        ProcessBuilder builder = new ProcessBuilder(
+                "bash",
+                script.toString(),
+                "--output", target.toString(),
+                "--dpi", String.valueOf(request.getDpi()),
+                "--mode", request.getColorMode()
+        );
+
+        if (StringUtils.hasText(properties.getDeviceName())) {
+            builder.command().add("--device");
+            builder.command().add(properties.getDeviceName());
+        }
+
+        return builder;
+    }
+
+    private boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win");
     }
 
     private ScanDocument toDocumentUnchecked(Path path) {
