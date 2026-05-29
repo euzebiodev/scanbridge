@@ -1,0 +1,167 @@
+:root {
+    color-scheme: light;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7f6;
+    color: #1d2525;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.shell {
+    width: min(1120px, calc(100% - 32px));
+    margin: 32px auto;
+}
+
+.toolbar {
+    align-items: end;
+    background: #ffffff;
+    border: 1px solid #d9e2df;
+    border-radius: 8px;
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr auto;
+    padding: 24px;
+}
+
+h1,
+h2,
+p {
+    margin: 0;
+}
+
+h1 {
+    font-size: 32px;
+    line-height: 1.15;
+}
+
+.toolbar p {
+    color: #5d6b68;
+    margin-top: 6px;
+}
+
+.scan-form {
+    align-items: end;
+    display: flex;
+    gap: 12px;
+}
+
+label {
+    color: #4a5755;
+    display: grid;
+    font-size: 13px;
+    gap: 6px;
+}
+
+input,
+select,
+button {
+    border: 1px solid #b9c8c4;
+    border-radius: 6px;
+    font: inherit;
+    min-height: 40px;
+    padding: 0 12px;
+}
+
+button {
+    background: #0f766e;
+    border-color: #0f766e;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.alert {
+    border-radius: 6px;
+    margin: 16px 0;
+    padding: 12px 14px;
+}
+
+.success {
+    background: #dff6e8;
+    color: #135c35;
+}
+
+.error {
+    background: #ffe2df;
+    color: #8d2118;
+}
+
+.documents {
+    margin-top: 24px;
+}
+
+.section-title {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-title span {
+    color: #687673;
+    font-size: 14px;
+}
+
+table {
+    background: #ffffff;
+    border: 1px solid #d9e2df;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+}
+
+th,
+td {
+    border-bottom: 1px solid #e4ece9;
+    padding: 14px 16px;
+    text-align: left;
+}
+
+th {
+    color: #56625f;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+td:last-child,
+th:last-child {
+    text-align: right;
+}
+
+a {
+    color: #0f766e;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.empty {
+    background: #ffffff;
+    border: 1px solid #d9e2df;
+    border-radius: 8px;
+    color: #687673;
+    padding: 32px;
+    text-align: center;
+}
+
+@media (max-width: 760px) {
+    .toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .scan-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}

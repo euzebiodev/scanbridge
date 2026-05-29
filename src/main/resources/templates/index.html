@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ScanBridge</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="shell">
+    <section class="toolbar">
+        <div>
+            <h1>ScanBridge</h1>
+            <p>Digitalizacao compartilhada para usuarios da rede</p>
+        </div>
+        <form class="scan-form" th:action="@{/scan}" th:object="${scanRequest}" method="post">
+            <label>
+                DPI
+                <input type="number" th:field="*{dpi}" min="75" max="600" step="25">
+            </label>
+            <label>
+                Cor
+                <select th:field="*{colorMode}">
+                    <option value="color">Colorido</option>
+                    <option value="grayscale">Cinza</option>
+                    <option value="blackwhite">Preto e branco</option>
+                </select>
+            </label>
+            <button type="submit">Digitalizar</button>
+        </form>
+    </section>
+
+    <p class="alert success" th:if="${success}" th:text="${success}"></p>
+    <p class="alert error" th:if="${error}" th:text="${error}"></p>
+
+    <section class="documents">
+        <div class="section-title">
+            <h2>Documentos</h2>
+            <span th:text="${#lists.size(documents)} + ' arquivo(s)'"></span>
+        </div>
+
+        <div class="empty" th:if="${#lists.isEmpty(documents)}">
+            Nenhum documento digitalizado ainda.
+        </div>
+
+        <table th:if="${!#lists.isEmpty(documents)}">
+            <thead>
+            <tr>
+                <th>Arquivo</th>
+                <th>Data</th>
+                <th>Tamanho</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="document : ${documents}">
+                <td th:text="${document.fileName()}"></td>
+                <td th:text="${#temporals.format(document.createdAt(), 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></td>
+                <td><a th:href="@{/documents/{fileName}(fileName=${document.fileName()})}">Baixar</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
