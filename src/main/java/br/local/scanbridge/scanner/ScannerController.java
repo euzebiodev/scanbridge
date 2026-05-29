@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Controller
 public class ScannerController {
@@ -57,6 +58,32 @@ public class ScannerController {
             redirectAttributes.addFlashAttribute("error", "Digitalizacao interrompida.");
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/documents/{fileName}/view")
+    public String view(@PathVariable String fileName, Model model) throws IOException {
+        Optional<ScanDocument> selectedDocument = scannerService.listDocuments().stream()
+                .filter(document -> document.fileName().equals(fileName))
+                .findFirst();
+
+        if (selectedDocument.isEmpty()) {
+            throw new IOException("Arquivo nao encontrado.");
+        }
+
+        model.addAttribute("document", selectedDocument.get());
+        return "viewer";
+    }
+
+    @GetMapping("/documents/{fileName}/content")
+    public ResponseEntity<Resource> content(@PathVariable String fileName) throws IOException {
+        Resource resource = scannerService.load(fileName);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(fileName)
+                        .build()
+                        .toString())
+                .body(resource);
     }
 
     @GetMapping("/documents/{fileName}")

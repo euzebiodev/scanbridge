@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${document.fileName()} + ' - ScanBridge'">Documento - ScanBridge</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<main class="shell viewer-shell">
+    <section class="viewer-bar">
+        <div>
+            <a class="back-link" th:href="@{/}">Voltar</a>
+            <h1 th:text="${document.fileName()}">Documento</h1>
+            <p>
+                <span th:text="${#temporals.format(document.createdAt(), 'dd/MM/yyyy HH:mm')}"></span>
+                <span th:text="' - ' + ${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></span>
+            </p>
+        </div>
+        <a class="button-link" th:href="@{/documents/{fileName}(fileName=${document.fileName()})}">Baixar</a>
+    </section>
+
+    <section class="viewer-frame">
+        <img th:src="@{/documents/{fileName}/content(fileName=${document.fileName()})}" th:alt="${document.fileName()}">
+    </section>
+</main>
+</body>
+</html>
