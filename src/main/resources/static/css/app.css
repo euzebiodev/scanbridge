@@ -76,6 +76,12 @@ button {
     font-weight: 700;
 }
 
+.secondary-button {
+    background: #ffffff;
+    border-color: #b9c8c4;
+    color: #34413f;
+}
+
 .button-link {
     align-items: center;
     background: #0f766e;
@@ -173,10 +179,10 @@ a {
 }
 
 .viewer-bar {
-    align-items: center;
-    display: flex;
+    align-items: end;
+    display: grid;
     gap: 16px;
-    justify-content: space-between;
+    grid-template-columns: minmax(220px, 1fr) auto;
     margin-bottom: 18px;
 }
 
@@ -196,6 +202,16 @@ a {
     font-size: 14px;
 }
 
+.export-form {
+    align-items: end;
+    display: flex;
+    gap: 10px;
+}
+
+.export-form input[type="text"] {
+    width: 230px;
+}
+
 .viewer-frame {
     align-items: start;
     background: #dfe8e5;
@@ -208,12 +224,31 @@ a {
     padding: 20px;
 }
 
+.crop-stage {
+    cursor: crosshair;
+    display: inline-block;
+    line-height: 0;
+    position: relative;
+    touch-action: none;
+}
+
 .viewer-frame img {
     background: #ffffff;
     box-shadow: 0 10px 30px rgba(25, 38, 36, 0.18);
     display: block;
     height: auto;
     max-width: 100%;
+    user-select: none;
+}
+
+.crop-selection {
+    background: rgba(15, 118, 110, 0.16);
+    border: 2px solid #0f766e;
+    display: none;
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
 }
 
 @media (max-width: 760px) {
@@ -233,7 +268,16 @@ a {
 
     .viewer-bar {
         align-items: stretch;
+        grid-template-columns: 1fr;
+    }
+
+    .export-form {
+        align-items: stretch;
         flex-direction: column;
+    }
+
+    .export-form input[type="text"] {
+        width: 100%;
     }
 
     .button-link {

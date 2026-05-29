@@ -59,7 +59,6 @@
                 <td th:text="${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></td>
                 <td class="actions">
                     <a th:href="@{/documents/{fileName}/view(fileName=${document.fileName()})}">Visualizar</a>
-                    <a th:href="@{/documents/{fileName}(fileName=${document.fileName()})}">Baixar</a>
                 </td>
             </tr>
             </tbody>

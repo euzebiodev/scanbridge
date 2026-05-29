@@ -17,12 +17,42 @@
                 <span th:text="' - ' + ${#numbers.formatDecimal(document.size() / 1024.0, 1, 1)} + ' KB'"></span>
             </p>
         </div>
-        <a class="button-link" th:href="@{/documents/{fileName}(fileName=${document.fileName()})}">Baixar</a>
+        <form class="export-form" th:action="@{/documents/{fileName}/export(fileName=${document.fileName()})}" method="post">
+            <input type="hidden" name="x" id="crop-x">
+            <input type="hidden" name="y" id="crop-y">
+            <input type="hidden" name="width" id="crop-width">
+            <input type="hidden" name="height" id="crop-height">
+            <label>
+                Nome
+                <input
+                        name="documentName"
+                        type="text"
+                        th:value="${#strings.substringBefore(document.fileName(), '.jpg')}"
+                        maxlength="90">
+            </label>
+            <label>
+                Formato
+                <select name="format">
+                    <option value="pdf">PDF</option>
+                    <option value="jpg">JPG</option>
+                </select>
+            </label>
+            <button type="button" class="secondary-button" id="clear-selection">Limpar recorte</button>
+            <button type="submit">Baixar</button>
+        </form>
     </section>
 
     <section class="viewer-frame">
-        <img th:src="@{/documents/{fileName}/content(fileName=${document.fileName()})}" th:alt="${document.fileName()}">
+        <div class="crop-stage" id="crop-stage">
+            <img
+                    id="document-image"
+                    draggable="false"
+                    th:src="@{/documents/{fileName}/content(fileName=${document.fileName()})}"
+                    th:alt="${document.fileName()}">
+            <div class="crop-selection" id="crop-selection"></div>
+        </div>
     </section>
 </main>
+<script th:src="@{/js/viewer.js}"></script>
 </body>
 </html>

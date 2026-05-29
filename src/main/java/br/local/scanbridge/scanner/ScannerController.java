@@ -1,6 +1,7 @@
 package br.local.scanbridge.scanner;
 
 import jakarta.validation.Valid;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -22,9 +24,11 @@ import java.util.Optional;
 public class ScannerController {
 
     private final ScannerService scannerService;
+    private final DocumentExportService documentExportService;
 
-    public ScannerController(ScannerService scannerService) {
+    public ScannerController(ScannerService scannerService, DocumentExportService documentExportService) {
         this.scannerService = scannerService;
+        this.documentExportService = documentExportService;
     }
 
     @GetMapping("/")
@@ -84,6 +88,26 @@ public class ScannerController {
                         .build()
                         .toString())
                 .body(resource);
+    }
+
+    @PostMapping("/documents/{fileName}/export")
+    public ResponseEntity<ByteArrayResource> export(
+            @PathVariable String fileName,
+            @RequestParam(required = false) String documentName,
+            @RequestParam(defaultValue = "jpg") String format,
+            @RequestParam(required = false) Integer x,
+            @RequestParam(required = false) Integer y,
+            @RequestParam(required = false) Integer width,
+            @RequestParam(required = false) Integer height
+    ) throws IOException {
+        DocumentExport export = documentExportService.export(fileName, documentName, format, x, y, width, height);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(export.mediaType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(export.fileName())
+                        .build()
+                        .toString())
+                .body(new ByteArrayResource(export.content()));
     }
 
     @GetMapping("/documents/{fileName}")

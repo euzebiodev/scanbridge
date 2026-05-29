@@ -76,16 +76,21 @@ public class ScannerService {
     }
 
     public Resource load(String fileName) throws IOException {
-        Path base = properties.getOutputDirectory().toAbsolutePath().normalize();
-        Path file = base.resolve(fileName).normalize();
-        if (!file.startsWith(base) || !Files.isRegularFile(file)) {
-            throw new IOException("Arquivo nao encontrado.");
-        }
+        Path file = resolveDocument(fileName);
         try {
             return new UrlResource(file.toUri());
         } catch (MalformedURLException exception) {
             throw new IOException("Arquivo invalido.", exception);
         }
+    }
+
+    public Path resolveDocument(String fileName) throws IOException {
+        Path base = properties.getOutputDirectory().toAbsolutePath().normalize();
+        Path file = base.resolve(fileName).normalize();
+        if (!file.startsWith(base) || !Files.isRegularFile(file)) {
+            throw new IOException("Arquivo nao encontrado.");
+        }
+        return file;
     }
 
     public Duration timeout() {
