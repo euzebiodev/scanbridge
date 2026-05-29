@@ -28,6 +28,7 @@ public class DocumentExportService {
 
     public DocumentExport export(
             String sourceFileName,
+            String username,
             String documentName,
             String format,
             Integer x,
@@ -35,7 +36,7 @@ public class DocumentExportService {
             Integer width,
             Integer height
     ) throws IOException {
-        Path source = scannerService.resolveDocument(sourceFileName);
+        Path source = scannerService.resolveDocument(username, sourceFileName);
         BufferedImage image = ImageIO.read(source.toFile());
         if (image == null) {
             throw new IOException("Nao foi possivel ler a imagem digitalizada.");

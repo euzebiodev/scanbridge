@@ -25,7 +25,7 @@ body {
     border-radius: 8px;
     display: grid;
     gap: 24px;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     padding: 24px;
 }
 
@@ -45,10 +45,20 @@ h1 {
     margin-top: 6px;
 }
 
+.user-line {
+    display: block;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
 .scan-form {
     align-items: end;
     display: flex;
     gap: 12px;
+}
+
+.logout-form {
+    align-self: end;
 }
 
 label {
@@ -197,6 +207,42 @@ a {
     color: #687673;
     padding: 32px;
     text-align: center;
+}
+
+.auth-shell {
+    align-items: center;
+    display: flex;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.auth-panel {
+    background: #ffffff;
+    border: 1px solid #d9e2df;
+    border-radius: 8px;
+    margin: 0 auto;
+    padding: 28px;
+    width: min(420px, 100%);
+}
+
+.auth-panel p {
+    color: #5d6b68;
+    margin-top: 8px;
+}
+
+.auth-form {
+    display: grid;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.auth-form button {
+    margin-top: 4px;
+}
+
+.auth-link {
+    display: inline-block;
+    margin-top: 18px;
 }
 
 .viewer-shell {

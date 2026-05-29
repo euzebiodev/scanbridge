@@ -7,6 +7,8 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -32,17 +34,19 @@ public class ScannerController {
     }
 
     @GetMapping("/")
-    public String index(Model model) throws IOException {
+    public String index(@AuthenticationPrincipal UserDetails user, Model model) throws IOException {
         if (!model.containsAttribute("scanRequest")) {
             model.addAttribute("scanRequest", new ScanRequest());
         }
-        model.addAttribute("documents", scannerService.listDocuments());
+        model.addAttribute("documents", scannerService.listDocuments(user.getUsername()));
+        model.addAttribute("currentUser", user.getUsername());
         model.addAttribute("timeoutSeconds", scannerService.timeout().toSeconds());
         return "index";
     }
 
     @PostMapping("/scan")
     public String scan(
+            @AuthenticationPrincipal UserDetails user,
             @Valid @ModelAttribute ScanRequest scanRequest,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes
@@ -53,7 +57,7 @@ public class ScannerController {
         }
 
         try {
-            ScanDocument document = scannerService.scan(scanRequest);
+            ScanDocument document = scannerService.scan(user.getUsername(), scanRequest);
             redirectAttributes.addFlashAttribute("success", "Documento digitalizado: " + document.fileName());
         } catch (IOException exception) {
             redirectAttributes.addFlashAttribute("error", exception.getMessage());
@@ -65,8 +69,8 @@ public class ScannerController {
     }
 
     @GetMapping("/documents/{fileName}/view")
-    public String view(@PathVariable String fileName, Model model) throws IOException {
-        Optional<ScanDocument> selectedDocument = scannerService.listDocuments().stream()
+    public String view(@AuthenticationPrincipal UserDetails user, @PathVariable String fileName, Model model) throws IOException {
+        Optional<ScanDocument> selectedDocument = scannerService.listDocuments(user.getUsername()).stream()
                 .filter(document -> document.fileName().equals(fileName))
                 .findFirst();
 
@@ -74,13 +78,14 @@ public class ScannerController {
             throw new IOException("Arquivo nao encontrado.");
         }
 
+        model.addAttribute("currentUser", user.getUsername());
         model.addAttribute("document", selectedDocument.get());
         return "viewer";
     }
 
     @GetMapping("/documents/{fileName}/content")
-    public ResponseEntity<Resource> content(@PathVariable String fileName) throws IOException {
-        Resource resource = scannerService.load(fileName);
+    public ResponseEntity<Resource> content(@AuthenticationPrincipal UserDetails user, @PathVariable String fileName) throws IOException {
+        Resource resource = scannerService.load(user.getUsername(), fileName);
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
@@ -92,6 +97,7 @@ public class ScannerController {
 
     @PostMapping("/documents/{fileName}/export")
     public ResponseEntity<ByteArrayResource> export(
+            @AuthenticationPrincipal UserDetails user,
             @PathVariable String fileName,
             @RequestParam(required = false) String documentName,
             @RequestParam(defaultValue = "jpg") String format,
@@ -100,7 +106,16 @@ public class ScannerController {
             @RequestParam(required = false) Integer width,
             @RequestParam(required = false) Integer height
     ) throws IOException {
-        DocumentExport export = documentExportService.export(fileName, documentName, format, x, y, width, height);
+        DocumentExport export = documentExportService.export(
+                fileName,
+                user.getUsername(),
+                documentName,
+                format,
+                x,
+                y,
+                width,
+                height
+        );
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(export.mediaType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
@@ -111,8 +126,8 @@ public class ScannerController {
     }
 
     @GetMapping("/documents/{fileName}")
-    public ResponseEntity<Resource> download(@PathVariable String fileName) throws IOException {
-        Resource resource = scannerService.load(fileName);
+    public ResponseEntity<Resource> download(@AuthenticationPrincipal UserDetails user, @PathVariable String fileName) throws IOException {
+        Resource resource = scannerService.load(user.getUsername(), fileName);
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()

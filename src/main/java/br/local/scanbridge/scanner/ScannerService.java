@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.Normalizer;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -34,12 +35,13 @@ public class ScannerService {
         this.properties = properties;
     }
 
-    public ScanDocument scan(ScanRequest request) throws IOException, InterruptedException {
-        Files.createDirectories(properties.getOutputDirectory());
+    public ScanDocument scan(String username, ScanRequest request) throws IOException, InterruptedException {
+        Path userDirectory = userDirectory(username);
+        Files.createDirectories(userDirectory);
 
         String id = UUID.randomUUID().toString();
         String fileName = "scan-" + FILE_STAMP.format(Instant.now()) + "-" + id.substring(0, 8) + ".jpg";
-        Path target = properties.getOutputDirectory().resolve(fileName).toAbsolutePath().normalize();
+        Path target = userDirectory.resolve(fileName).toAbsolutePath().normalize();
         ProcessBuilder builder = isWindows()
                 ? windowsScanProcess(target, request)
                 : linuxScanProcess(target, request);
@@ -63,9 +65,10 @@ public class ScannerService {
         return toDocument(target);
     }
 
-    public List<ScanDocument> listDocuments() throws IOException {
-        Files.createDirectories(properties.getOutputDirectory());
-        try (Stream<Path> files = Files.list(properties.getOutputDirectory())) {
+    public List<ScanDocument> listDocuments(String username) throws IOException {
+        Path userDirectory = userDirectory(username);
+        Files.createDirectories(userDirectory);
+        try (Stream<Path> files = Files.list(userDirectory)) {
             return files
                     .filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".jpg"))
@@ -75,8 +78,8 @@ public class ScannerService {
         }
     }
 
-    public Resource load(String fileName) throws IOException {
-        Path file = resolveDocument(fileName);
+    public Resource load(String username, String fileName) throws IOException {
+        Path file = resolveDocument(username, fileName);
         try {
             return new UrlResource(file.toUri());
         } catch (MalformedURLException exception) {
@@ -84,8 +87,8 @@ public class ScannerService {
         }
     }
 
-    public Path resolveDocument(String fileName) throws IOException {
-        Path base = properties.getOutputDirectory().toAbsolutePath().normalize();
+    public Path resolveDocument(String username, String fileName) throws IOException {
+        Path base = userDirectory(username).toAbsolutePath().normalize();
         Path file = base.resolve(fileName).normalize();
         if (!file.startsWith(base) || !Files.isRegularFile(file)) {
             throw new IOException("Arquivo nao encontrado.");
@@ -137,6 +140,18 @@ public class ScannerService {
 
     private boolean isWindows() {
         return System.getProperty("os.name").toLowerCase(Locale.ROOT).contains("win");
+    }
+
+    private Path userDirectory(String username) {
+        return properties.getOutputDirectory().resolve(safeUserDirectoryName(username));
+    }
+
+    private String safeUserDirectoryName(String username) {
+        String normalized = Normalizer.normalize(username, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .replaceAll("[^a-zA-Z0-9._-]+", "-")
+                .replaceAll("^-+|-+$", "");
+        return StringUtils.hasText(normalized) ? normalized.toLowerCase(Locale.ROOT) : "usuario";
     }
 
     private ScanDocument toDocumentUnchecked(Path path) {
