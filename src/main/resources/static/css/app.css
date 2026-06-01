@@ -318,9 +318,68 @@ a {
     border: 2px solid #0f766e;
     display: none;
     left: 0;
-    pointer-events: none;
+    pointer-events: auto;
     position: absolute;
     top: 0;
+    cursor: move;
+    line-height: 1;
+}
+
+.crop-handle {
+    background: #ffffff;
+    border: 2px solid #0f766e;
+    border-radius: 999px;
+    height: 14px;
+    position: absolute;
+    width: 14px;
+}
+
+.crop-handle-nw {
+    cursor: nwse-resize;
+    left: -8px;
+    top: -8px;
+}
+
+.crop-handle-n {
+    cursor: ns-resize;
+    left: calc(50% - 7px);
+    top: -8px;
+}
+
+.crop-handle-ne {
+    cursor: nesw-resize;
+    right: -8px;
+    top: -8px;
+}
+
+.crop-handle-e {
+    cursor: ew-resize;
+    right: -8px;
+    top: calc(50% - 7px);
+}
+
+.crop-handle-se {
+    bottom: -8px;
+    cursor: nwse-resize;
+    right: -8px;
+}
+
+.crop-handle-s {
+    bottom: -8px;
+    cursor: ns-resize;
+    left: calc(50% - 7px);
+}
+
+.crop-handle-sw {
+    bottom: -8px;
+    cursor: nesw-resize;
+    left: -8px;
+}
+
+.crop-handle-w {
+    cursor: ew-resize;
+    left: -8px;
+    top: calc(50% - 7px);
 }
 
 @media (max-width: 760px) {
