@@ -117,6 +117,9 @@ public class ScannerService {
         return Duration.ofSeconds(properties.getTimeoutSeconds());
     }
 
+    /**
+     * Usa o driver WIA no Windows pra capturar a pagina scaneada.
+     */
     private ProcessBuilder windowsScanProcess(Path target, ScanRequest request) {
         Path script = properties.getScriptPath().toAbsolutePath().normalize();
         ProcessBuilder builder = new ProcessBuilder(
@@ -137,6 +140,9 @@ public class ScannerService {
         return builder;
     }
 
+    /**
+     * Runs SANE scanner command and put the image in a temp file for zip save.
+     */
     private ProcessBuilder linuxScanProcess(Path target, ScanRequest request) {
         Path script = properties.getSaneScriptPath().toAbsolutePath().normalize();
         ProcessBuilder builder = new ProcessBuilder(
