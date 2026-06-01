@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -138,7 +139,11 @@ public class PasswordResetService {
 
                 Se voce nao solicitou esta recuperacao, ignore este e-mail.
                 """.formatted(link));
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (MailException exception) {
+            LOGGER.warn("Falha ao enviar e-mail de recuperacao para {}. Link: {}", email, link, exception);
+        }
     }
 
     private String createToken() {
