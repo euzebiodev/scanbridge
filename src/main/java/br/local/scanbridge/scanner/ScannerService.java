@@ -45,27 +45,27 @@ public class ScannerService {
         String id = UUID.randomUUID().toString();
         String fileName = "scan-" + FILE_STAMP.format(Instant.now()) + "-" + id.substring(0, 8) + ".jpg";
         Path target = Files.createTempFile(properties.getOutputDirectory(), "scan-", ".jpg").toAbsolutePath().normalize();
-        ProcessBuilder builder = isWindows()
-                ? windowsScanProcess(target, request)
-                : linuxScanProcess(target, request);
-
-        builder.redirectErrorStream(true);
-        Process process = builder.start();
-        boolean finished = process.waitFor(properties.getTimeoutSeconds(), TimeUnit.SECONDS);
-        if (!finished) {
-            process.destroyForcibly();
-            throw new IOException("Tempo limite excedido ao digitalizar.");
-        }
-
-        String output = new String(process.getInputStream().readAllBytes());
-        if (process.exitValue() != 0) {
-            throw new IOException("Falha ao digitalizar: " + output.strip());
-        }
-        if (!Files.exists(target)) {
-            throw new IOException("O scanner terminou sem gerar arquivo.");
-        }
-
         try {
+            ProcessBuilder builder = isWindows()
+                    ? windowsScanProcess(target, request)
+                    : linuxScanProcess(target, request);
+
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            boolean finished = process.waitFor(properties.getTimeoutSeconds(), TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                throw new IOException("Tempo limite excedido ao digitalizar.");
+            }
+
+            String output = new String(process.getInputStream().readAllBytes());
+            if (process.exitValue() != 0) {
+                throw new IOException("Falha ao digitalizar: " + output.strip());
+            }
+            if (!Files.exists(target)) {
+                throw new IOException("O scanner terminou sem gerar arquivo.");
+            }
+
             addToArchive(username, fileName, target);
             return toDocument(username, fileName, Files.readAllBytes(target), Instant.now());
         } finally {
