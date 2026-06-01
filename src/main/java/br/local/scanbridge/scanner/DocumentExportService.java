@@ -11,9 +11,9 @@ import org.springframework.util.StringUtils;
 import javax.imageio.ImageIO;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.Normalizer;
 import java.util.Locale;
 
@@ -36,8 +36,8 @@ public class DocumentExportService {
             Integer width,
             Integer height
     ) throws IOException {
-        Path source = scannerService.resolveDocument(username, sourceFileName);
-        BufferedImage image = ImageIO.read(source.toFile());
+        byte[] source = scannerService.documentBytes(username, sourceFileName);
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(source));
         if (image == null) {
             throw new IOException("Nao foi possivel ler a imagem digitalizada.");
         }
