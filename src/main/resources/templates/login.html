@@ -10,28 +10,21 @@
 <main class="auth-shell">
     <section class="auth-panel">
         <h1>ScanBridge</h1>
-        <p>Entre para acessar suas digitalizacoes.</p>
+        <p>Entre com seu e-mail para acessar suas digitalizacoes.</p>
 
         <p class="alert success" th:if="${success}" th:text="${success}"></p>
         <p class="alert success" th:if="${param.logout}">Sessao encerrada.</p>
-        <p class="alert error" th:if="${param.error}">E-mail ou senha invalidos.</p>
+        <p class="alert error" th:if="${param.error}">Informe um e-mail valido.</p>
 
         <form class="auth-form" th:action="@{/login}" method="post">
             <label>
                 E-mail
                 <input name="email" type="email" autocomplete="email" required autofocus>
             </label>
-            <label>
-                Senha
-                <input name="password" type="password" autocomplete="current-password" required>
-            </label>
             <button type="submit">Entrar</button>
         </form>
 
-        <div class="auth-links">
-            <a th:href="@{/register}">Criar cadastro</a>
-            <a th:href="@{/forgot-password}">Esqueci minha senha</a>
-        </div>
+        <a class="auth-link" th:href="@{/register}">Criar cadastro</a>
     </section>
 </main>
 </body>

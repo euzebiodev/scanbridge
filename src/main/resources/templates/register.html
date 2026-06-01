@@ -10,7 +10,7 @@
 <main class="auth-shell">
     <section class="auth-panel">
         <h1>Criar cadastro</h1>
-        <p>Use e-mail e senha para manter suas digitalizacoes separadas.</p>
+        <p>Use seu e-mail para manter suas digitalizacoes separadas.</p>
 
         <p class="alert error" th:if="${error}" th:text="${error}"></p>
 
@@ -18,10 +18,6 @@
             <label>
                 E-mail
                 <input th:field="*{email}" type="email" autocomplete="email" required autofocus>
-            </label>
-            <label>
-                Senha
-                <input th:field="*{password}" type="password" autocomplete="new-password" minlength="8" required>
             </label>
             <button type="submit">Cadastrar</button>
         </form>
