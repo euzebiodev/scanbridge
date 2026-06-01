@@ -28,7 +28,10 @@
             <button type="submit">Entrar</button>
         </form>
 
-        <a class="auth-link" th:href="@{/register}">Criar cadastro</a>
+        <div class="auth-links">
+            <a th:href="@{/register}">Criar cadastro</a>
+            <a th:href="@{/forgot-password}">Esqueci minha senha</a>
+        </div>
     </section>
 </main>
 </body>

@@ -13,9 +13,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final RegistrationService registrationService;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(RegistrationService registrationService) {
+    public AuthController(RegistrationService registrationService, PasswordResetService passwordResetService) {
         this.registrationService = registrationService;
+        this.passwordResetService = passwordResetService;
     }
 
     @GetMapping("/login")
@@ -52,6 +54,54 @@ public class AuthController {
         }
 
         redirectAttributes.addFlashAttribute("success", "Cadastro criado. Entre com seu e-mail e senha.");
+        return "redirect:/login";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(Model model) {
+        if (!model.containsAttribute("forgotPasswordRequest")) {
+            model.addAttribute("forgotPasswordRequest", new ForgotPasswordRequest());
+        }
+        return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(
+            @Valid @ModelAttribute ForgotPasswordRequest forgotPasswordRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (!bindingResult.hasErrors()) {
+            passwordResetService.requestReset(forgotPasswordRequest);
+        }
+        redirectAttributes.addFlashAttribute("success", "Se o e-mail existir, enviaremos um link de recuperacao.");
+        return "redirect:/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPassword(@ModelAttribute ResetPasswordRequest resetPasswordRequest) {
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @Valid @ModelAttribute ResetPasswordRequest resetPasswordRequest,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Informe uma senha com pelo menos 8 caracteres.");
+            redirectAttributes.addAttribute("token", resetPasswordRequest.getToken());
+            return "redirect:/reset-password";
+        }
+
+        boolean reset = passwordResetService.resetPassword(resetPasswordRequest);
+        if (!reset) {
+            redirectAttributes.addFlashAttribute("error", "Link invalido ou expirado.");
+            return "redirect:/forgot-password";
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Senha alterada. Entre com sua nova senha.");
         return "redirect:/login";
     }
 }

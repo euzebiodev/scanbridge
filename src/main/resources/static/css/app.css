@@ -245,6 +245,17 @@ a {
     margin-top: 18px;
 }
 
+.auth-links {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.auth-links a {
+    font-size: 14px;
+}
+
 .viewer-shell {
     width: min(1320px, calc(100% - 32px));
 }
