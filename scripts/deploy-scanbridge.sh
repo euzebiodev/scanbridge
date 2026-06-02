@@ -24,7 +24,14 @@ fi
 
 install -o root -g root -m 0644 "$JAR_PATH" /opt/scanbridge/scanbridge.jar
 systemctl restart scanbridge.service
-sleep 30
-systemctl is-active scanbridge.service
-curl -fsS http://127.0.0.1:8080/actuator/health
-printf '\n'
+
+for attempt in $(seq 1 24); do
+    if systemctl is-active --quiet scanbridge.service && curl -fsS http://127.0.0.1:8080/actuator/health; then
+        printf '\n'
+        exit 0
+    fi
+    sleep 5
+done
+
+systemctl status scanbridge.service --no-pager -l
+exit 1
