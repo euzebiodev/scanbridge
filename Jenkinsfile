@@ -10,6 +10,11 @@ pipeline {
         pollSCM('H/5 * * * *')
     }
 
+    environment {
+        SPRING_DATASOURCE_URL = 'jdbc:sqlite:target/scanbridge-ci.db'
+        SCANBRIDGE_SCANNER_OUTPUT_DIRECTORY = 'target/scans'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -19,6 +24,7 @@ pipeline {
 
         stage('Test') {
             steps {
+                sh 'mkdir -p target/scans'
                 sh './mvnw test'
             }
         }
