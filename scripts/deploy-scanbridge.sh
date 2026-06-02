@@ -9,7 +9,7 @@ fi
 JAR_PATH="$(readlink -f "$1")"
 
 case "$JAR_PATH" in
-    /var/lib/jenkins/workspace/*/target/scanbridge-0.0.1-SNAPSHOT.jar|/home/euzebio/Projetos/Repositorios/scanbridge/target/scanbridge-0.0.1-SNAPSHOT.jar)
+    /var/lib/jenkins/jobs/scanbridge-cd/workspace/target/scanbridge-0.0.1-SNAPSHOT.jar|/home/euzebio/Projetos/Repositorios/scanbridge/target/scanbridge-0.0.1-SNAPSHOT.jar)
         ;;
     *)
         echo "Caminho do jar nao permitido: $JAR_PATH"
