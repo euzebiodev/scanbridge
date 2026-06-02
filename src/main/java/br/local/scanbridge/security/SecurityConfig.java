@@ -18,7 +18,8 @@ public class SecurityConfig {
                                 "/login",
                                 "/register",
                                 "/css/**",
-                                "/js/**"
+                                "/js/**",
+                                "/img/**"
                         ).permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated()
