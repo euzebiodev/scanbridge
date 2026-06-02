@@ -31,18 +31,12 @@ pipeline {
         }
 
         stage('Deploy') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh 'sudo /opt/scanbridge/deploy-scanbridge.sh target/scanbridge-0.0.1-SNAPSHOT.jar'
             }
         }
 
         stage('Health') {
-            when {
-                branch 'main'
-            }
             steps {
                 sh 'curl -fsS http://127.0.0.1:8080/actuator/health'
             }
