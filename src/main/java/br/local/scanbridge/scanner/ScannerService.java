@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -33,43 +35,51 @@ public class ScannerService {
             .withZone(ZoneId.systemDefault());
 
     private final ScanProperties properties;
+    private final ConcurrentMap<String, Object> scanLocks = new ConcurrentHashMap<>();
 
     public ScannerService(ScanProperties properties) {
         this.properties = properties;
     }
 
     public ScanDocument scan(String username, ScanRequest request) throws IOException, InterruptedException {
-        migrateLooseDocuments(username);
-        Files.createDirectories(properties.getOutputDirectory());
+        Object lock = scanLocks.computeIfAbsent(username, k -> new Object());
+        synchronized (lock) {
+            try {
+                migrateLooseDocuments(username);
+                Files.createDirectories(properties.getOutputDirectory());
 
-        String id = UUID.randomUUID().toString();
-        String fileName = "scan-" + FILE_STAMP.format(Instant.now()) + "-" + id.substring(0, 8) + ".jpg";
-        Path target = Files.createTempFile(properties.getOutputDirectory(), "scan-", ".jpg").toAbsolutePath().normalize();
-        try {
-            ProcessBuilder builder = isWindows()
-                    ? windowsScanProcess(target, request)
-                    : linuxScanProcess(target, request);
+                String id = UUID.randomUUID().toString();
+                String fileName = "scan-" + FILE_STAMP.format(Instant.now()) + "-" + id.substring(0, 8) + ".jpg";
+                Path target = Files.createTempFile(properties.getOutputDirectory(), "scan-", ".jpg").toAbsolutePath().normalize();
+                try {
+                    ProcessBuilder builder = isWindows()
+                            ? windowsScanProcess(target, request)
+                            : linuxScanProcess(target, request);
 
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            boolean finished = process.waitFor(properties.getTimeoutSeconds(), TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroyForcibly();
-                throw new IOException("Tempo limite excedido ao digitalizar.");
+                    builder.redirectErrorStream(true);
+                    Process process = builder.start();
+                    boolean finished = process.waitFor(properties.getTimeoutSeconds(), TimeUnit.SECONDS);
+                    if (!finished) {
+                        process.destroyForcibly();
+                        throw new IOException("Tempo limite excedido ao digitalizar.");
+                    }
+
+                    String output = new String(process.getInputStream().readAllBytes());
+                    if (process.exitValue() != 0) {
+                        throw new IOException("Falha ao digitalizar: " + output.strip());
+                    }
+                    if (!Files.exists(target)) {
+                        throw new IOException("O scanner terminou sem gerar arquivo.");
+                    }
+
+                    addToArchive(username, fileName, target);
+                    return toDocument(username, fileName, Files.readAllBytes(target), Instant.now());
+                } finally {
+                    Files.deleteIfExists(target);
+                }
+            } finally {
+                scanLocks.remove(username, lock);
             }
-
-            String output = new String(process.getInputStream().readAllBytes());
-            if (process.exitValue() != 0) {
-                throw new IOException("Falha ao digitalizar: " + output.strip());
-            }
-            if (!Files.exists(target)) {
-                throw new IOException("O scanner terminou sem gerar arquivo.");
-            }
-
-            addToArchive(username, fileName, target);
-            return toDocument(username, fileName, Files.readAllBytes(target), Instant.now());
-        } finally {
-            Files.deleteIfExists(target);
         }
     }
 

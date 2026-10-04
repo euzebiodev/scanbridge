@@ -20,7 +20,7 @@
         <form class="logout-form" th:action="@{/logout}" method="post">
             <button type="submit" class="secondary-button">Sair</button>
         </form>
-        <form class="scan-form" th:action="@{/scan}" th:object="${scanRequest}" method="post">
+        <form id="scanForm" class="scan-form" th:action="@{/scan}" th:object="${scanRequest}" method="post">
             <label>
                 DPI
                 <input type="number" th:field="*{dpi}" min="75" max="600" step="25">
@@ -33,7 +33,7 @@
                     <option value="blackwhite">Preto e branco</option>
                 </select>
             </label>
-            <button type="submit">Digitalizar</button>
+            <button type="submit" id="scanButton">Digitalizar</button>
         </form>
     </section>
 
@@ -70,5 +70,20 @@
         </div>
     </section>
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('scanForm');
+        var btn = document.getElementById('scanButton');
+        if (!form || !btn) return;
+        form.addEventListener('submit', function (e) {
+            if (btn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = 'Digitalizando...';
+        });
+    });
+</script>
 </body>
 </html>
